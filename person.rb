@@ -20,4 +20,3 @@ class Person
     is_of_age? || @parent_permission
   end
 end
-
