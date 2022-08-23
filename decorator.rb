@@ -19,12 +19,7 @@ class CapitalizeDecorator < Decorator
   end
 end
 
-class Trimperson = Person.new(22, 'maximilianus')
-  person.correct_name
-  capitalizedPerson = CapitalizeDecorator.new(person)
-  capitalizedPerson.correct_name
-  capitalizedTrimmedPerson = TrimmerDecorator.new(capitalizedPerson)
-  capitalizedTrimmedPerson.correct_namemerDecorator < Decorator
+class TrimmerDecorator < Decorator
   def correct_name
     if @nameable.correct_name.length > 10
       @nameable.correct_name[0..9]
