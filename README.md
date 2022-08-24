@@ -22,8 +22,6 @@
 
 
 ## Authors
-
-
 👤 **Kiprotich Kimutai**
 
 - GitHub: [@Kimutai01](https://github.com/Kimutai01)
