@@ -31,5 +31,5 @@ class Person < Nameable
 
   def add_rentals(date, _person, book)
     Rental.new(date, self, book)
-  endSS81RzNlMElzMUpPZm9ySkppcEZidz09
+  end
 end
