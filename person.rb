@@ -1,5 +1,6 @@
 require './nameable'
 require './decorator'
+require './rental'
 
 class Person < Nameable
   attr_reader :id
@@ -26,5 +27,9 @@ class Person < Nameable
 
   def correct_name
     @name
+  end
+
+  def add_rentals(date, _person, book)
+    Rental.new(date, self, book)
   end
 end
