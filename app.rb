@@ -1,145 +1,117 @@
-require './student'
-require './teacher'
-require './book'
-require './rental'
+require_relative 'student'
+require_relative 'teacher'
+require_relative 'book'
+require_relative 'rental'
+require_relative 'classroom'
 
 class App
+  attr_accessor :books, :people, :rentals, :classroom
+
   def initialize
-    @people = []
     @books = []
+    @people = []
     @rentals = []
+    @classroom = Classroom.new('Computer Science')
   end
 
-  def show_menu
-    puts "\n\nWelcome to School Library App!\n\n"
-    puts 'Please choose an option by entering a number:'
-    puts '1 - List all books'
-    puts '2 - List all people'
-    puts '3 - Create a person'
-    puts '4 - Create a book'
-    puts '5 - Create a rental'
-    puts '6 - List all rentals for a given person id'
-    puts "7 - Exit\n\n"
-    gets.chomp
-  end
-
-  def list_people
-    puts 'List of people:'
-    @people.each do |person, index|
-      puts "#{index}) - Name: #{person.name} ID: #{person.id} Age: #{person.age}"
+  def list_all_books
+    @books.each do |book|
+      puts "Title: #{book.title}, Author: #{book.author}"
     end
   end
 
-  def list_books
-    puts 'List of books:'
-    @books.each do |book, index|
-      puts "(#{index}) - Author: #{book.author} Title: #{book.title}"
+  def list_all_people
+    people.each do |person|
+      puts "[#{person.class.name}] Name: #{person.name}, ID: #{person.id}, Age: #{person.age}"
+    end
+  end
+
+  def create_person
+    puts 'Do you want to create a student (1) or a teache (2)? [Input a number]:'
+    person_type = gets.chomp.to_i
+
+    case person_type
+    when 1
+      create_student
+    when 2
+      create_teacher
+    else
+      invalid_input
     end
   end
 
   def create_student
-    puts 'Enter student name:'
-    name = gets.chomp
-    puts 'Enter student age:'
+    puts 'Age:'
     age = gets.chomp.to_i
-    puts 'Enter student classroom (Grade 1, Grade 2, etc):'
-    classroom = gets.chomp
-    puts 'Enter student parent permission (Y/N):'
-    parent_permission = gets.chomp.to_s == 'Y'
-    @people << Student.new(age, name, parent_permission, classroom)
-    puts "\n"
-    puts "Student #{name} created!"
+    puts 'Name:'
+    name = gets.chomp.to_s
+    puts 'Has parent permission? [Y/N]:'
+    case gets.chomp.capitalize
+    when 'Y'
+      permission = true
+    when 'N'
+      permission = false
+    else
+      return invalid_input
+    end
+
+    people.push(Student.new(age, classroom, name, parent_permission: permission))
+    puts 'Person created successfully'
   end
 
   def create_teacher
-    puts 'Enter teacher name:'
-    name = gets.chomp
-    puts 'Enter teacher age:'
+    puts 'Age:'
     age = gets.chomp.to_i
-    puts 'Enter teacher specialization:'
-    specialization = gets.chomp
-    @people << Teacher.new(name, age, specialization)
-    puts "\n"
-    puts "Teacher #{name} created!"
-  end
+    puts 'Name:'
+    name = gets.chomp.to_s
+    puts 'Specialization:'
+    specialization = gets.chomp.to_s
 
-  def create_rental
-    puts 'Enter person index from list below (Not ID):'
-    list_people
-    person_id = gets.chomp.to_i
-    person = @people[person_id]
-    if check_permissom(person)
-      puts 'Enter book index from list below (Not ID):'
-      list_books
-      book_id = gets.chomp.to_i
-      puts 'Enter rental date (YYYY-MM-DD):'
-      date = gets.chomp
-      @rentals << Rental.new(date, @people[person_id], @books[book_id])
-      puts "\n"
-      puts 'Rental created!'
-    else
-      puts 'You do not have permission to rent books!'
-    end
+    people.push(Teacher.new(age, specialization, name))
+    puts 'Person created successfully'
   end
 
   def create_book
-    puts 'Enter book title: '
-    title = gets.chomp
-    puts 'Enter book author: '
-    author = gets.chomp
-    @books << Book.new(title, author)
-    puts "\n"
-    puts "Book #{title} created!"
+    puts 'Title:'
+    title = gets.chomp.to_s
+    puts 'Author:'
+    author = gets.chomp.to_s
+
+    books.push(Book.new(title, author))
+    puts 'Book created successfully'
   end
 
-  def list_rentals_by_person_id
-    puts 'Enter person ID:'
+  def create_rental
+    puts 'Select a book from the following list by number: '
+    books.each_with_index do |book, index|
+      puts "#{index}) Title: #{book.title} Author: #{book.author}"
+    end
+    book_index = gets.chomp.to_i
+    return invalid_input if book_index > books.length
+
+    puts 'Select a person from the following list by number (not id): '
+    people.each_with_index do |person, index|
+      puts "#{index}) [#{person.class.name}] Name: #{person.name}, ID: #{person.id}, Age: #{person.age}"
+    end
+    person_index = gets.chomp.to_i
+    return invalid_input if person_index > people.length
+
+    print 'Date: '
+    date = gets.chomp.to_s
+
+    rentals.push(Rental.new(date, people[person_index], books[book_index]))
+    puts 'Rental created successfully.'
+  end
+
+  def display_rentals_by_person_id
+    print 'Person ID: '
     person_id = gets.chomp.to_i
-    puts "List of rentals for person id #{person_id}:"
-    @rentals.each { |rental| puts rental.to_s if rental.person.id == person_id }
-  end
-
-  def run
-    loop do
-      option = show_menu
-      case option
-      when '1'
-        list_books
-      when '2'
-        list_people
-      when '3'
-        create_person
-      when '4'
-        create_book
-      when '5'
-        create_rental
-      when '6'
-        list_rentals_by_person_id
-      else
-        end_program(option)
-        break
-      end
+    rentals.each do |rent|
+      puts "Date: #{rent.date}, Book: #{rent.book.title} by #{rent.book.author}." if rent.person.id == person_id
     end
   end
 
-  def end_program(option)
-    puts option == '7' ? 'Goodbye!' : 'Invalid option. Try again.'
-  end
-
-  def check_permissom(person)
-    person.can_use_services?
-  end
-
-  def create_person
-    puts 'Do you want to create a 1) Student or 2) Teacher: [Input 1 or 2]'
-    option = gets.chomp
-    case option
-    when '1'
-      create_student
-    when '2'
-      create_teacher
-    else
-      puts 'Invalid option!'
-    end
+  def invalid_input
+    puts 'Invalid Input'
   end
 end
